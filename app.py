@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 import os
 import subprocess
 import uuid
+import html
 
 app = FastAPI()
 
@@ -15,10 +16,20 @@ def home():
       </head>
       <body style="font-family: Arial; max-width: 800px; margin: 40px auto;">
         <h1>GPT Engineer UI</h1>
+
         /generate
-          <textarea name="prompt" rows="10" style="width:100%;" placeholder="Describe the app you want..."></textarea>
+          <textarea 
+            name="prompt" 
+            rows="10" 
+            style="width:100%;" 
+            placeholder="Describe the app you want..."
+          ></textarea>
+
           <br><br>
-          <button type="submit">Generate</button>
+
+          <button type="submit">
+            Generate
+          </button>
         </form>
       </body>
     </html>
@@ -31,6 +42,7 @@ def generate(prompt: str = Form(...)):
     os.makedirs(project_dir, exist_ok=True)
 
     prompt_file = os.path.join(project_dir, "prompt")
+
     with open(prompt_file, "w", encoding="utf-8") as f:
         f.write(prompt)
 
@@ -47,12 +59,22 @@ def generate(prompt: str = Form(...)):
     except Exception as e:
         output = str(e)
 
+    safe_output = html.escape(output)
+
     return f"""
     <html>
+      <head>
+        <title>GPT Engineer Result</title>
+      </head>
       <body style="font-family: Arial; max-width: 900px; margin: 40px auto;">
         <h2>Result</h2>
-        <pre style="white-space: pre-wrap; background:#f4f4f4; padding:20px;">{output}</pre>
+
+        <pre style="white-space: pre-wrap; background:#f4f4f4; padding:20px;">
+{safe_output}
+        </pre>
+
         <br>
+
         /Back</a>
       </body>
     </html>
